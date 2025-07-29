@@ -609,3 +609,19 @@ export const useLifitngVehicle = () => {
         },      
     });
 };
+
+
+const fetchVehicleDetailsByCode = (applicationcode) => {
+    return request({
+        url : `/final-submit/details/${applicationcode}`,
+        method: "get",
+    })
+}
+
+export const useFetchVehicleDetails = (applicationcode) => {
+    return useQuery ({
+        queryKey: ["fetch-vehicle-details", applicationcode],
+        queryFn: () => fetchVehicleDetailsByCode(applicationcode),
+        enabled: !!applicationcode,
+    })
+}

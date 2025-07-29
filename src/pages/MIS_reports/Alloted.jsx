@@ -8,13 +8,10 @@ import {
 } from '@chakra-ui/react';
 
 import AllottedTable from '../Msi_tableData/AllottedTable';
-
-// Import the modal component
-
-// Import mutation hooks
 import { useFetchAllottedReportPDF, useFetchAllottedReportExcel} from '../../hooks/reportQueries';
 
-import AllotmentLetterPDFModal from '../../components/common/AllotmentLetterPDFModal';
+// import AllotmentLetterPDFModal from '../../components/common/AllotmentLetterPDFModal';
+
 const Allotted = () => 
 {
 
@@ -26,9 +23,9 @@ const Allotted = () =>
 
   const toast = useToast();
   
-  const[isModalOpen, setIsModadOpen] = useState(false);
+  // const[isModalOpen, setIsModadOpen] = useState(false);
 
-  const[selectedRowData, setSelectedRowData] = useState(null);
+  // const[selectedRowData, setSelectedRowData] = useState(null);
 
   const { 
     mutate: exportPDF,
@@ -40,26 +37,25 @@ const Allotted = () =>
     isPending: isExportingExcel,
   } = useFetchAllottedReportExcel();
 
-  const handleModalOpen = (row) => {
+  // const handleModalOpen = (row) => {
 
-    const modalData = {
-      appNo : row?.applicationCode,
-    }
-    setSelectedRowData(modalData);
-    setIsModadOpen(true);
-  }
+  //   const modalData = {
+  //     appNo : row?.applicationCode,
+  //   }
+  //   setSelectedRowData(modalData);
+  //   setIsModadOpen(true);
+  // }
 
-  const handleCloseModal = () =>{
-    setIsModadOpen(false);
-    setSelectedRowData(null);
-  }
-  // 2. Create individual setter functions that update the single state object.
+  // const handleCloseModal = () =>{
+  //   setIsModadOpen(false);
+  //   setSelectedRowData(null);
+  // }
+
   const handleSetSearch = (searchText) => {
     setFilterValues(prev => ({ ...prev, search: searchText }));
   };
 
   const handleSetYear = (yearValue) => {
-    // CRITICAL: When the year changes, reset the month in the same update!
     setFilterValues(prev => ({ ...prev, year: yearValue, month: '' }));
   };
 
@@ -72,8 +68,8 @@ const Allotted = () =>
       // const profile = profileData?.data;
     
      const handleExport = (format) => {
-    // Use the values from the state object
-    const params = { year: filterValues.year || undefined, month: filterValues.month || undefined };
+
+      const params = { year: filterValues.year || undefined, month: filterValues.month || undefined };
 
      if (params.month && !params.year) {
         toast({
@@ -97,12 +93,12 @@ const Allotted = () =>
   return (
     <Box mt={5}>
         
-         <AllottedTable
+      <AllottedTable
         filterValues={filterValues}
         setSearch={handleSetSearch}
         setYear={handleSetYear}
         setMonth={handleSetMonth}
-        onOpenModal={handleModalOpen}
+        // onOpenModal={handleModalOpen}
       />
        <HStack spacing={5} mt={4} justifyContent="center">
           <Button 
@@ -114,6 +110,7 @@ const Allotted = () =>
           >
             Export PDF
           </Button>
+      
           <Button 
             size="md"  
             colorScheme="green" 
@@ -123,16 +120,15 @@ const Allotted = () =>
           >
             Export Excel
           </Button>
-        </HStack> 
-
-        {/* ADD THIS: Render the modal conditionally */}
-            {selectedRowData && (
-                <AllotmentLetterPDFModal
-                    isOpen={isModalOpen}
-                    onClose={handleCloseModal}
-                    rowState={selectedRowData}
-                />
-            )}
+        </HStack>
+        
+        {/* {selectedRowData && (
+          <AllotmentLetterPDFModal
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            rowState={selectedRowData}
+          />
+        )} */}
     </Box>
   );
 };

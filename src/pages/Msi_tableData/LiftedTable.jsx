@@ -14,7 +14,7 @@ import {
   HStack,
   Heading,
   Select,
-  filter
+  useDisclosure
 } from '@chakra-ui/react';
 
 import {
@@ -35,14 +35,18 @@ import { useFetchLiftedVehicle } from '../../hooks/transportActions';
 import { useFetchLiftedVehicleDates } from '../../hooks/dateQueries';
 
 import SearchInput from "../../components/core/SearchInput"
+import VehicleDetailsViewModal from '../../components/common/VehicleDetailsViewModal';
 
-// Props: onOpenModal (function to call when an action button is clicked)
 const LiftedTable = ({filterValues, setSearch, setYear, setMonth}) => {
 
      const [pageSize, setPageSize] = useState(10);
    const [pageNumber, setPageNumber] = useState(0);
  
    const [debouncedSearch] = useDebounce(filterValues.search, 500);
+
+   const { isOpen, onOpen, onClose} = useDisclosure();
+   const [ selectedApplicationCode, setSelectedApplicationCode] = useState(null);
+
    const 
    {
      data: liftedDatesResponse,
@@ -93,6 +97,16 @@ const LiftedTable = ({filterValues, setSearch, setYear, setMonth}) => {
   useEffect(() => {
     setPageNumber(0);
   }, [debouncedSearch, filterValues.year, filterValues.month]);
+
+      const handleViewClick = (appCode) => {
+        setSelectedApplicationCode(appCode);
+        onOpen();
+    };
+
+  const handleCloseModal = () => {
+    onClose();
+    setSelectedApplicationCode(null);
+  };
 
   const containerBg = useColorModeValue('white', 'gray.800');
   const textColor = useColorModeValue('gray.600', 'gray.400');
@@ -185,6 +199,7 @@ const LiftedTable = ({filterValues, setSearch, setYear, setMonth}) => {
                                 <DTh>Lifter's Name</DTh>
                                 <DTh>Lifter's Address</DTh>
                                 <DTh>Lifted Date</DTh>
+                                <DTh>Actions</DTh>
                             </DTr>
                         </DThead>
                         <DTbody>
@@ -217,6 +232,12 @@ const LiftedTable = ({filterValues, setSearch, setYear, setMonth}) => {
                                         </DTd>
                                         <DTd>
                                             {row.lifteddate}
+                                        </DTd>
+
+                                        <DTd> 
+                                            <Button size="sm" variant="ghost" colorScheme="teal" onClick={() => handleViewClick(row.applicationCode)}>
+                                                View Details
+                                            </Button>
                                         </DTd>
                                     </DTr>
                                 ))
@@ -260,6 +281,12 @@ const LiftedTable = ({filterValues, setSearch, setYear, setMonth}) => {
                 </Flex>
              </>
         )}
+
+         <VehicleDetailsViewModal
+            isOpen={isOpen}
+            onClose={handleCloseModal}
+            applicationCode={selectedApplicationCode}
+        />
     </Box>
   );
 };

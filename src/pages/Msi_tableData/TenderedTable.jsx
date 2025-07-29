@@ -14,7 +14,7 @@ import {
   HStack,
   Heading,
   Select,
-  filter
+  useDisclosure
 } from '@chakra-ui/react';
 
 import {
@@ -35,8 +35,8 @@ import { useFetchTenderedVehicle } from '../../hooks/transportActions';
 import { useFetchTenderedVehicleDates } from '../../hooks/dateQueries';
 
 import SearchInput from "../../components/core/SearchInput"
+import VehicleDetailsViewModal from '../../components/common/VehicleDetailsViewModal';
 
-// Props: onOpenModal (function to call when an action button is clicked)
 const TenderedTable = ({filterValues, setSearch, setYear, setMonth}) => {
 
 
@@ -44,6 +44,10 @@ const TenderedTable = ({filterValues, setSearch, setYear, setMonth}) => {
   const [pageNumber, setPageNumber] = useState(0);
 
   const [debouncedSearch] = useDebounce(filterValues.search, 500);
+
+  const { isOpen, onOpen, onClose} = useDisclosure();
+  const [ selectedApplicationCode, setSelectedApplicationCode] = useState(null);
+
   const 
   {
     data: tenderedDatesResponse,
@@ -95,9 +99,21 @@ const TenderedTable = ({filterValues, setSearch, setYear, setMonth}) => {
       setPageNumber(0);
     }, [debouncedSearch, filterValues.year, filterValues.month]);
   
+          const handleViewClick = (appCode) => {
+        setSelectedApplicationCode(appCode);
+        onOpen();
+    };
+
+  const handleCloseModal = () => {
+    onClose();
+    setSelectedApplicationCode(null);
+  };
+
+  
     const containerBg = useColorModeValue('white', 'gray.800');
     const textColor = useColorModeValue('gray.600', 'gray.400');
     
+
   // --- Render Logic ---
   return (
     <Box p={{ base: 2, md: 4 }} borderWidth="1px" borderRadius="md" bg={containerBg} shadow="sm">
@@ -187,6 +203,7 @@ const TenderedTable = ({filterValues, setSearch, setYear, setMonth}) => {
                                 <DTh isNumeric>Total Kms Logged</DTh>
                                 <DTh>MVI Report</DTh>
                                 <DTh>Case Pending</DTh>
+                                <DTh>Actions</DTh>
                             </DTr>
                         </DThead>
                         <DTbody>
@@ -222,6 +239,14 @@ const TenderedTable = ({filterValues, setSearch, setYear, setMonth}) => {
                                                 {row.anyCasePending ? 'Yes' : 'No'}
                                             </Tag>
                                         </DTd>
+
+                                         <DTd> 
+                                            <Button size="sm" variant="ghost" colorScheme="teal" onClick={() => handleViewClick(row.applicationCode)}>
+                                                View Details
+                                            </Button>
+                                        </DTd>
+
+
                                     </DTr>
                                 ))
                             ) : null}
@@ -264,6 +289,12 @@ const TenderedTable = ({filterValues, setSearch, setYear, setMonth}) => {
                 </Flex>
              </>
         )}
+
+        <VehicleDetailsViewModal
+            isOpen={isOpen}
+            onClose={handleCloseModal}
+            applicationCode={selectedApplicationCode}
+        />
     </Box>
   );
 };

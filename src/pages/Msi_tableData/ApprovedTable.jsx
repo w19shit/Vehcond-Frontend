@@ -14,7 +14,7 @@ import {
   HStack,
   Heading,
   Select,
-  filter
+  useDisclosure,
 } from '@chakra-ui/react';
 
 import {
@@ -31,10 +31,11 @@ import {
 
 import { useDebounce } from "use-debounce";
 
-import { useFetchPlaceBeforeVcc } from '../../hooks/transportActions'; 
+import { useFetchPlaceBeforeVcc} from '../../hooks/transportActions'; 
 import { useFetchApprovedVehicleDates } from '../../hooks/dateQueries';
 
 import SearchInput from "../../components/core/SearchInput"
+import VehicleDetailsViewModal from '../../components/common/VehicleDetailsViewModal';
 
 const ApprovedTable = ({filterValues, setSearch, setYear, setMonth}) => {
 
@@ -42,6 +43,9 @@ const ApprovedTable = ({filterValues, setSearch, setYear, setMonth}) => {
   const [pageNumber, setPageNumber] = useState(0);
 
   const [debouncedSearch] = useDebounce(filterValues.search, 500);
+
+  const { isOpen, onOpen, onClose} = useDisclosure();
+  const [ selectedApplicationCode, setSelectedApplicationCode] = useState(null);
 
   const 
   {
@@ -100,6 +104,19 @@ const ApprovedTable = ({filterValues, setSearch, setYear, setMonth}) => {
   useEffect(() => {
     setPageNumber(0);
   }, [debouncedSearch, filterValues.year, filterValues.month]);
+
+
+  const handleViewClick = (appCode) => {
+    setSelectedApplicationCode(appCode);
+    onOpen();
+  }
+
+  const handleCloseModal = () => {
+    onClose();
+    setSelectedApplicationCode(null);
+  };
+
+
 
   const containerBg = useColorModeValue('white', 'gray.800');
   const textColor = useColorModeValue('gray.600', 'gray.400');
@@ -193,6 +210,7 @@ const ApprovedTable = ({filterValues, setSearch, setYear, setMonth}) => {
                                 <DTh isNumeric>Total Kms Logged</DTh>
                                 <DTh>MVI Report</DTh>
                                 <DTh>Case Pending</DTh>
+                                <DTh>Actions</DTh>
                             </DTr>
                         </DThead>
                         <DTbody>
@@ -227,6 +245,18 @@ const ApprovedTable = ({filterValues, setSearch, setYear, setMonth}) => {
                                             <Tag size="sm" colorScheme={row.anyCasePending ? 'orange' : 'blue'} variant="subtle">
                                                 {row.anyCasePending ? 'Yes' : 'No'}
                                             </Tag>
+                                        </DTd>
+
+                                        <DTd>
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                colorScheme="teal"
+                                                aria-label= "View Details"
+                                                onClick={() => handleViewClick(row.applicationCode)}
+                                            >
+                                                View Vehicle Details
+                                            </Button>
                                         </DTd>
                                     </DTr>
                                 ))
@@ -270,6 +300,13 @@ const ApprovedTable = ({filterValues, setSearch, setYear, setMonth}) => {
                 </Flex>
              </>
         )}
+
+        <VehicleDetailsViewModal
+          isOpen={isOpen}
+          onClose={handleCloseModal}
+          applicationCode={selectedApplicationCode}
+        />
+
     </Box>
   );
 };

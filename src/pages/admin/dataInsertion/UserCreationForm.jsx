@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import {
     Box,
     Button,
-    // HStack,
     useColorModeValue,
     useToast,
     VStack,
@@ -18,6 +17,7 @@ import SelectField from "../../../components/core/formik/SelectField";
 
 import { useFetchDepartmentForSelect } from '../../../hooks/dataEntryQueries';
 import { useFetchRoleForSelect } from '../../../hooks/adminActions';
+import { useRegisterUser } from '../../../hooks/authQueries';
 
 const validationSchema = Yup.object().shape({
     username: Yup
@@ -25,6 +25,12 @@ const validationSchema = Yup.object().shape({
         .required('Username is required'),
     password: Yup
         .string()
+        .matches(/(?=.*[a-z])/, "At least 1 lowercase letter")
+        .matches(/(?=.*[A-Z])/, "At least 1 uppercase letter")
+        .matches(/(?=.*\d)/, "At least 1 number")
+        .matches(/(?=.*[#^@$!%*?&])/, "At least 1 special character")
+        .min(8, "New Password must be between 8 to 255 characters")
+        .max(255, "New Password must be between 8 to 255 characters")
         .required('Password is required'),
     name: Yup
         .string()
@@ -40,14 +46,12 @@ const validationSchema = Yup.object().shape({
         .required('User Access is required'),
 });
 
-// userAccessOptions was removed as per request.
-// You will need to fetch these options from an API or define them elsewhere.
-
 const UserCreationForm = () => {
     const toast = useToast();
-    // FIXME: Replace useAddRoleNameRequest with your actual hook for creating users
-    // const { mutate: addDistrictRtoMutate, isLoading: isAddingDistrictRto } = useAddRoleNameRequest();
-    //const { mutate: createUserMutate, isLoading: isCreatingUser } = useCreateUserRequest(); // ASSUMPTION
+    const {
+        mutate: registerUserMutate,
+        isLoading: isCreatingUser,
+    } = useRegisterUser();
 
     const {
         data: departmentData,
@@ -91,68 +95,51 @@ const UserCreationForm = () => {
         rolecode: '',
         userAccess: '',
     };
-
+    
+    // --- THIS FUNCTION WAS MISSING. IT IS NOW RESTORED. ---
+    // This function wraps our logic so it only runs on form submission.
     const handleSubmit = (values, formikActions) => {
-        console.log("Form values to submit:", values);
-        formikActions.setSubmitting(true);
+        const payload = {
+            username: values.username,
+            password: values.password,
+            name: values.name,
+            departmentCode: parseInt(values.departmentCode, 10),
+            rolecode: parseInt(values.rolecode, 10),
+            userAccess: values.userAccess === 'true' 
+        };
 
-        // Construct the payload for user creation
-        // FIXME: Adjust the payload structure according to your backend API requirements
-        // const payload = {
-        //     username: values.username,
-        //     password: values.password,
-        //     fullName: values.name, // Or whatever your backend expects for 'name'
-        //     departmentId: values.departmentCode, // Assuming backend expects departmentId or departmentCode
-        //     roleId: values.roleId,
-        //     accessLevel: values.userAccess, // Or userAccess, useraccess - match backend
-        // };
+        console.log("Submitting payload:", payload);
 
-        // createUserMutate(payload, {
-        //     onSuccess: (response) => {
-        //         const selectedDepartmentObj = sortedDepartments.find(d => d.departmentCode === values.departmentCode);
-        //         const departmentNameForToast = selectedDepartmentObj ? selectedDepartmentObj.departmentName : values.departmentCode;
-
-        //         console.log('User created successfully. Server response:', response);
-        //         toast({
-        //             title: "User Created",
-        //             description: `User "${values.username}" for department "${departmentNameForToast}" has been successfully created. ${response?.data?.message || ''}`,
-        //             status: "success",
-        //             duration: 5000,
-        //             isClosable: true,
-        //             position: "top-right",
-        //         });
-        //         formikActions.resetForm();
-        //     },
-        //     onError: (error) => {
-        //         console.error('User creation failed:', error);
-        //         toast({
-        //             title: "Error Creating User",
-        //             description: error?.response?.data?.error || error?.message || "An unexpected error occurred.",
-        //             status: "error",
-        //             duration: 5000,
-        //             isClosable: true,
-        //             position: "top-right",
-        //         });
-        //     },
-        //     onSettled: () => {
-        //         formikActions.setSubmitting(false);
-        //     }
-        // });
-        // Simulate API call for now
-        setTimeout(() => {
-            console.log("Simulating API call finished for:", values);
-             toast({
-                 title: "Form Submitted (Simulated)",
-                 description: `Data for ${values.username} was prepared. Implement actual API call.`,
-                 status: "info",
-                 duration: 5000,
-                 isClosable: true,
-                 position: "top-right",
-             });
-            formikActions.setSubmitting(false);
-            // formikActions.resetForm(); // Uncomment if you want to reset the form after simulated submission
-        }, 1000);
-    };
+        // The mutation is called *inside* the submit handler
+        registerUserMutate(payload, {
+            onSuccess: (response) => {
+                console.log('User created successfully:', response);
+                toast({
+                    title: "User Created",
+                    description: `User "${values.username}" has been successfully created.`,
+                    status: "success",
+                    duration: 5000,
+                    isClosable: true,
+                    position: "top-right",
+                });
+                formikActions.resetForm();
+            },
+            onError: (error) => {
+                console.error('User creation failed:', error);
+                toast({
+                    title: "Error Creating User",
+                    description: error?.response?.data?.error || error.message || "An unexpected error occurred.",
+                    status: "error",
+                    duration: 7000,
+                    isClosable: true,
+                    position: "top-right",
+                });
+            },
+            onSettled: () => {
+                formikActions.setSubmitting(false);
+            }
+        });
+    }; // <- The closing brace for handleSubmit
 
     if (isLoadingDepartments || isLoadingRoles) {
         return (
@@ -162,6 +149,7 @@ const UserCreationForm = () => {
             </Box>
         );
     }
+
     if (isErrorDepartments) {
         return (
             <Box color="red.500" p={5} borderWidth="1px" borderRadius="md" borderColor="red.300" bg="red.50">
@@ -195,70 +183,33 @@ const UserCreationForm = () => {
             <Formik
                 initialValues={initialValues}
                 validationSchema={validationSchema}
-                onSubmit={handleSubmit}
+                onSubmit={handleSubmit} // This now correctly points to our function
                 enableReinitialize
             >
                 {(formikProps) => (
                     <Form>
                         <VStack spacing={4} align="stretch">
-                            <InputField
-                                name="username"
-                                label="Username"
-                                placeholder="Enter a username"
-                                isRequired={true}
-                                size="md"
-                            />
-                            <InputField
-                                name="password"
-                                label="Password"
-                                placeholder="Enter a password"
-                                type="password"
-                                isRequired={true}
-                                size="md"
-                            />
-                            <InputField
-                                name="name"
-                                label="Name of User"
-                                placeholder="Enter the full name of the user"
-                                isRequired={true}
-                                size="md"
-                            />
-                            <SelectField
-                                name="departmentCode"
-                                label="Department"
-                                placeholder="Select Department"
-                                isRequired={true}
-                            >
+                            <InputField name="username" label="Username" placeholder="Enter a username" isRequired={true} size="md" />
+                            <InputField name="password" label="Password" placeholder="Enter a password" type="password" isRequired={true} size="md" />
+                            <InputField name="name" label="Name of User" placeholder="Enter the full name of the user" isRequired={true} size="md" />
+                            <SelectField name="departmentCode" label="Department" placeholder="Select Department" isRequired={true}>
                                 {sortedDepartments?.map((department) => (
                                     <option key={department.departmentCode} value={department.departmentCode}>
                                         {department.departmentName}
                                     </option>
                                 ))}
                             </SelectField>
-
-                            <SelectField
-                                name="rolecode"
-                                label="Role"
-                                placeholder="Select Role"
-                                isRequired={true}
-                            >
+                            <SelectField name="rolecode" label="Role" placeholder="Select Role" isRequired={true}>
                                 {sortedRoles?.map((role) => (
                                     <option key={role.rolecode} value={role.rolecode}>
                                         {role.role}
                                     </option>
                                 ))}
                             </SelectField>
-
-                            <SelectField
-                                name="userAccess"
-                                label="User Access"
-                                placeholder="Select User Access"
-                                isRequired={true}
-                            >
+                            <SelectField name="userAccess" label="User Access" placeholder="Select User Access" isRequired={true}>
                                 <option value="true">Enable</option>
                                 <option value="false">Disable</option>
                             </SelectField>
-
                             <Stack
                                 direction={{ base: 'column', sm: 'row' }}
                                 spacing={3}
@@ -269,27 +220,18 @@ const UserCreationForm = () => {
                                 <Button
                                     type="submit"
                                     colorScheme="blue"
-                                    isLoading={formikProps.isSubmitting
-                                        // || isCreatingUser
-                                    }
-                                    loadingText="Submitting..."
-                                    isDisabled={formikProps.isSubmitting
-                                        // || isCreatingUser
-                                        || !formikProps.isValid || !formikProps.dirty}
+                                    isLoading={isCreatingUser}
+                                    loadingText="Creating..."
+                                    isDisabled={isCreatingUser || !formikProps.isValid || !formikProps.dirty}
                                     w={{ base: '100%', sm: 'auto' }}
                                 >
                                     Create User
                                 </Button>
                                 <Button
                                     type="button"
-                                    onClick={() => {
-                                        formikProps.resetForm();
-                                    }}
+                                    onClick={() => formikProps.resetForm()}
                                     variant="outline"
-                                    isDisabled={
-                                        // isCreatingUser ||
-                                        !formikProps.dirty
-                                    }
+                                    isDisabled={isCreatingUser || !formikProps.dirty}
                                     w={{ base: '100%', sm: 'auto' }}
                                 >
                                     Reset

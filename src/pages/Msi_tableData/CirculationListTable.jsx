@@ -14,7 +14,7 @@ import {
   HStack,
   Heading,
   Select,
-  filter
+  useDisclosure
 } from '@chakra-ui/react';
 
 import {
@@ -36,6 +36,7 @@ import { useFetchToBeAllotted } from '../../hooks/transportActions';
 import { useFetchCirculatedVehicleDates } from '../../hooks/dateQueries';
 
 import SearchInput from "../../components/core/SearchInput"
+import VehicleDetailsViewModal from '../../components/common/VehicleDetailsViewModal';
 
 const CirculationList = ({filterValues, setSearch, setYear, setMonth}) => {
 
@@ -43,6 +44,10 @@ const CirculationList = ({filterValues, setSearch, setYear, setMonth}) => {
     const [pageNumber, setPageNumber] = useState(0);
   
     const [debouncedSearch] = useDebounce(filterValues.search, 500);
+    
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const [selectedApplicationCode, setSelectedApplicationCode] = useState(null);
+
     const 
     {
       data: circulatedDatesResponse,
@@ -97,6 +102,16 @@ const startIndex = currentPageNumber * currentPageSize;
   useEffect(() => {
     setPageNumber(0);
   }, [debouncedSearch, filterValues.year, filterValues.month]);
+
+    const handleViewClick = (appCode) => {
+        setSelectedApplicationCode(appCode);
+        onOpen();
+    };
+
+  const handleCloseModal = () => {
+    onClose();
+    setSelectedApplicationCode(null);
+  };
 
   const containerBg = useColorModeValue('white', 'gray.800');
   const textColor = useColorModeValue('gray.600', 'gray.400');
@@ -188,6 +203,7 @@ const startIndex = currentPageNumber * currentPageSize;
                                 <DTh isNumeric>Deprecated Value</DTh>
                                 <DTh isNumeric>Total Kms Logged</DTh>
                                 <DTh>Price Fixed by TC</DTh>
+                                <DTh> Actions </DTh>
                             </DTr>
                         </DThead>
                         <DTbody>
@@ -216,6 +232,12 @@ const startIndex = currentPageNumber * currentPageSize;
                                         <DTd isNumeric>{row.totalKmsLogged?.toLocaleString() ?? 'N/A'}</DTd>
                                         <DTd isNumeric>
                                             {row.tcPrice ?? 'N/A'}
+                                        </DTd>
+
+                                        <DTd> 
+                                            <Button size="sm" variant="ghost" colorScheme="teal" onClick={() => handleViewClick(row.applicationCode)}>
+                                                View Details
+                                            </Button>
                                         </DTd>
                                     </DTr>
                                 ))
@@ -259,6 +281,12 @@ const startIndex = currentPageNumber * currentPageSize;
                 </Flex>
              </>
         )}
+
+         <VehicleDetailsViewModal
+        isOpen={isOpen}
+        onClose={handleCloseModal}
+        applicationCode={selectedApplicationCode}
+      />
     </Box>
   );
 };

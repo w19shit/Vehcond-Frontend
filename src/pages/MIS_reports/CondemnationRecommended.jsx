@@ -11,6 +11,7 @@ import {
 import CondemnationTable from '../Msi_tableData/CondemnationTable';
 
 import { useFetchCondemnedVehicleReportPDF, useFetchCondemnedVehicleReportExcel } from '../../hooks/reportQueries';
+import { useFetchUsersProfile } from '../../hooks/userQueries';
 
 const CondemnationRecommended = () => {
     const [filterValues, setFilterValues] = useState({
@@ -29,9 +30,9 @@ const CondemnationRecommended = () => {
         isPending: isExportingExcel,
       } = useFetchCondemnedVehicleReportExcel();
     
-      // const { data: profileData, isLoading: isLoadingProfile} = useFetchUsersProfile();
+      const { data: profileData, isLoading: isLoadingProfile} = useFetchUsersProfile();
     
-      // const profile = profileData?.data;
+      const profile = profileData?.data;
     const handleSetSearch = (searchText) => {
     setFilterValues(prev => ({ ...prev, search: searchText }));
   };
@@ -70,6 +71,7 @@ const CondemnationRecommended = () => {
           exportExcel(params);
         }
       };
+ const canExport = profile && (profile.role === 'ADMIN' || profile.role === 'TD');
 
   return (
     <Box mt={5}>
@@ -78,8 +80,9 @@ const CondemnationRecommended = () => {
           setSearch={handleSetSearch}
           setYear={handleSetYear}
           setMonth={handleSetMonth} />
-
+ {canExport && (
           <HStack spacing={5} mt={4} justifyContent="center">
+           
                         <Button 
                           size="md" 
                           colorScheme="red" 
@@ -99,6 +102,7 @@ const CondemnationRecommended = () => {
                           Export Excel
                         </Button>
                       </HStack>  
+              )}
     </Box>
   );
 };

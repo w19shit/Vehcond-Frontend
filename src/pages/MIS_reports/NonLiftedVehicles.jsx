@@ -10,9 +10,6 @@ import {
 
 import NonLiftedVehicleTable from '../Msi_tableData/NonLiftedVehicleTable';
 
-// Import the modal component
-
-// Import mutation hooks
 import { useFetchNonLiftedReportPDF, useFetchNonLiftedReportExcel } from '../../hooks/reportQueries'; 
 
 const NonLiftedVehicle = () => 
@@ -32,10 +29,6 @@ const NonLiftedVehicle = () =>
         mutate: exportExcel,
         isPending: isExportingExcel,
       } = useFetchNonLiftedReportExcel();
-    
-      // const { data: profileData, isLoading: isLoadingProfile} = useFetchUsersProfile();
-    
-      // const profile = profileData?.data;
     
       const handleExport = (format) => {
         if(!year || !month)
@@ -66,12 +59,13 @@ const NonLiftedVehicle = () =>
 
   return (
     <Box mt={5}>
-        {/* Pass the modal opener function */}
-        {/* <ToBeAllottedTable onOpenModal={handleOpenModal} /> */}
-        <NonLiftedVehicleTable   filterValues={filterValues}
+        
+        <NonLiftedVehicleTable   
+          filterValues={filterValues}
           setSearch={setSearch}
           setYear={setYear}
-          setMonth={setMonth} />
+          setMonth={setMonth} 
+        />
            <HStack spacing={5} mt={4} justifyContent="center">
                    <Button 
                      size="md" 

@@ -13,6 +13,7 @@ import LiftedTable from '../Msi_tableData/LiftedTable';
 
 // Import mutation hooks
 import { useFetchLiftedReportPDF, useFetchLiftedReportExcel } from '../../hooks/reportQueries'; 
+import { useFetchUsersProfile } from '../../hooks/userQueries';
 
 const Lifted = () => 
 {
@@ -34,9 +35,9 @@ const Lifted = () =>
         isPending: isExportingExcel,
       } = useFetchLiftedReportExcel();
     
-      // const { data: profileData, isLoading: isLoadingProfile} = useFetchUsersProfile();
+      const { data: profileData, isLoading: isLoadingProfile} = useFetchUsersProfile();
     
-      // const profile = profileData?.data;
+      const profile = profileData?.data;
      const handleSetSearch = (searchText) => {
     setFilterValues(prev => ({ ...prev, search: searchText }));
   };
@@ -75,6 +76,7 @@ const Lifted = () =>
           exportExcel(params);
         }
       };
+ const canExport = profile && (profile.role === 'ADMIN' || profile.role === 'TD');
 
   return (
     <Box mt={5}>
@@ -83,6 +85,8 @@ const Lifted = () =>
           setSearch={handleSetSearch}
           setYear={handleSetYear}
           setMonth={handleSetMonth}/>
+
+                {canExport && (
        <HStack spacing={5} mt={4} justifyContent="center">
                     <Button 
                       size="md" 
@@ -102,7 +106,8 @@ const Lifted = () =>
                     >
                       Export Excel
                     </Button>
-                  </HStack>  
+                  </HStack> 
+                        )} 
     </Box>
   );
 };

@@ -90,7 +90,7 @@ const PageAssignmentModal = ({
                                                     </DTd>
                                                     <DTd>{page.processName || 'N/A'}</DTd>
                                                     <DTd>{page.subProcessName || 'N/A'}</DTd>
-                                                    <DTd sx={{ wordBreak: 'break-all' }}>{page.pageurl || 'N/A'}</DTd>
+                                                    <DTd sx={{ wordBreak: 'break-all' }}>{page.pageUrl || 'N/A'}</DTd>
                                                 </DTr>
                                             ))
                                         ) : (

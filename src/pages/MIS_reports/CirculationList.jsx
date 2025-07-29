@@ -12,6 +12,7 @@ import {
 import CirculationListTable from '../Msi_tableData/CirculationListTable';
 
 import { useFetchCirculationReportPDF, useFetchCirculationReportExcel } from '../../hooks/reportQueries';
+import { useFetchUsersProfile } from '../../hooks/userQueries';
 
 const CirculationList = () => {
   const [filterValues, setFilterValues] = useState({
@@ -42,9 +43,9 @@ const CirculationList = () => {
   const handleSetMonth = (monthValue) => {
     setFilterValues(prev => ({ ...prev, month: monthValue }));
   };
-    // const { data: profileData, isLoading: isLoadingProfile} = useFetchUsersProfile();
+    const { data: profileData, isLoading: isLoadingProfile} = useFetchUsersProfile();
   
-    // const profile = profileData?.data;
+    const profile = profileData?.data;
   
     const handleExport = (format) => {
     // Use the values from the state object
@@ -73,6 +74,8 @@ const CirculationList = () => {
       
     };
 
+    const canExport = profile && (profile.role === 'ADMIN' || profile.role === 'TD');
+
   return (
     <Box mt={5}>
         <CirculationListTable
@@ -81,6 +84,9 @@ const CirculationList = () => {
           setYear={handleSetYear}
           setMonth={handleSetMonth}
         />
+
+         {canExport && (
+
       <HStack spacing={5} mt={4} justifyContent="center">
               <Button 
                 size="md" 
@@ -101,7 +107,7 @@ const CirculationList = () => {
                 Export Excel
               </Button>
             </HStack>  
-
+                )}
     </Box>
   );
 };

@@ -10,7 +10,7 @@ import {
 import ApprovedTable from '../Msi_tableData/ApprovedTable';
 
 import { useFetchApprovedVehicleReportPDF, useFetchApprovedVehicleReportExcel } from '../../hooks/reportQueries';
-// import { useFetchUsersProfile } from '../../hooks/userQueries';
+import { useFetchUsersProfile } from '../../hooks/userQueries';
 
 const ApprovedVehicles = () => {
 
@@ -32,9 +32,10 @@ const ApprovedVehicles = () => {
     isPending: isExportingExcel,
   } = useFetchApprovedVehicleReportExcel();
 
-  // const { data: profileData, isLoading: isLoadingProfile} = useFetchUsersProfile();
+  const { data: profileData, isLoading: isLoadingProfile} = useFetchUsersProfile();
 
-  // const profile = profileData?.data;
+  const profile = profileData?.data;
+  
   const handleSetSearch = (searchText) => {
     setFilterValues(prev => ({ ...prev, search: searchText }));
   };
@@ -73,7 +74,7 @@ const ApprovedVehicles = () => {
     }
   };
 
-  // const canExport = profile && (profile.role === 'ADMIN' || profile.role === 'TD');
+  const canExport = profile && (profile.role === 'ADMIN' || profile.role === 'TD');
 
   return (
     <Box mt={5}>
@@ -84,7 +85,7 @@ const ApprovedVehicles = () => {
         setMonth={handleSetMonth}
       />
 
-      {/* {canExport && ( */}
+      {canExport && (
         <HStack spacing={5} mt={4} justifyContent="center">
         <Button 
           size="md" 
@@ -105,7 +106,7 @@ const ApprovedVehicles = () => {
           Export Excel
         </Button>
       </HStack>  
-      {/* )} */}
+      )}
       
     </Box>
   );

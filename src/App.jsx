@@ -15,22 +15,22 @@ import TDRoutes from './components/routes/TDRoutes';
 import DraftListDisplay from './pages/tableData/DraftListDisplay';
 import TDDashboard from './pages/td/dashboard/TDDashboard';
 import ListToBeLifted from './pages/da/To be Lifted/ToBeLifted';
-import ApprovedVehicles from './pages/MIS reports/ApprovedVehicles';
-import CirculationList from './pages/MIS reports/CirculationList';
-import Lifted from './pages/MIS reports/Lifted';
-import Scrapped from './pages/MIS reports/Scrapped';
+import ApprovedVehicles from './pages/MIS_reports/ApprovedVehicles';
+import CirculationList from './pages/MIS_reports/CirculationList';
+import Lifted from './pages/MIS_reports/Lifted';
+import Scrapped from './pages/MIS_reports/Scrapped';
 import ToBeApproved from './pages/td/actions/ToBeApproved';
 import ToBePlaced from './pages/td/actions/ToBePlaced';
 import PriceFixed from './pages/td/actions/PriceFixed';
 import ToBeAllotted from './pages/td/actions/ToBeAllotted';
 import TenderHeavyVehicles from './pages/td/actions/TenderHeavyVehicles'
 import NonLifted from './pages/td/actions/NonLifted';
-import CondemnationRecommended from './pages/MIS reports/CondemnationRecommended';
-import Tendered from './pages/MIS reports/Tendered';
-import Alloted from './pages/MIS reports/Alloted';
+import CondemnationRecommended from './pages/MIS_reports/CondemnationRecommended';
+import Tendered from './pages/MIS_reports/Tendered';
+import Alloted from './pages/MIS_reports/Alloted';
 import AdminRoutes from './components/routes/AdminRoutes';
 import AdminDashboardPage from './pages/admin/dashboard/AdminDashboardPage';
-import NonLiftedVehicles from './pages/MIS reports/NonLiftedVehicles';
+import NonLiftedVehicles from './pages/MIS_reports/NonLiftedVehicles';
 import RolePage from './pages/admin/actions/RolePage';
 import DepartmentPage from './pages/admin/actions/DepartmentPage';
 import DistrictPage from './pages/admin/actions/DistrictPage';
@@ -42,6 +42,7 @@ import VehiclePartPage from './pages/admin/actions/VehiclePartPage';
 import ProcessPage from './pages/admin/actions/ProcessPage';
 import UserCreationPage from './pages/admin/actions/UserCreationPage';
 import ToBeLifted from './pages/da/To be Lifted/ToBeLifted';
+import Status from './pages/td/actions/Status';
 
 const App = () => {
   return (
@@ -85,7 +86,8 @@ const App = () => {
       {/* Transport Routes */}
       <Route path="/td" element={<TDRoutes />}>
         <Route path="dashboard" element={<TDDashboard />} />
-
+        
+        <Route path="drilldown" element={<Status/>} />
         {/* To Be Approved */}
         <Route path="listtobeapproved" element={<ToBeApproved/>} />
 

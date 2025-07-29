@@ -14,7 +14,7 @@ import {
   HStack,
   Heading,
   Select,
-  filter
+  useDisclosure,
 } from '@chakra-ui/react';
 
 import {
@@ -35,6 +35,7 @@ import { useFetchPriceFixedByTc } from '../../hooks/transportActions';
 import { useFetchCondemVehicleDates } from '../../hooks/dateQueries';
 
 import SearchInput from "../../components/core/SearchInput"
+import VehicleDetailsViewModal from "../../components/common/VehicleDetailsViewModal"
 
 const CondemnationTable = ({filterValues, setSearch, setYear, setMonth}) => {
 
@@ -42,6 +43,9 @@ const CondemnationTable = ({filterValues, setSearch, setYear, setMonth}) => {
     const [pageNumber, setPageNumber] = useState(0);
   
     const [debouncedSearch] = useDebounce(filterValues.search, 500);
+
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const [selectedApplicationCode, setSelectedApplicationCode] = useState(null);
 
     const 
     {
@@ -76,7 +80,6 @@ const CondemnationTable = ({filterValues, setSearch, setYear, setMonth}) => {
       return yearData ? yearData.months : [];
     }, [filterValues.year, availableDates, monthLabels]);
   
- 
 
   const {
     data: response,
@@ -101,7 +104,16 @@ const CondemnationTable = ({filterValues, setSearch, setYear, setMonth}) => {
      setPageNumber(0);
    }, [debouncedSearch, filterValues.year, filterValues.month]);
  
-   
+   const handleViewClick = (appCode) => {
+    setSelectedApplicationCode(appCode);
+    onOpen();
+  };
+
+  const handleCloseModal = () => {
+    onClose();
+    setSelectedApplicationCode(null);
+  };
+
    const containerBg = useColorModeValue('white', 'gray.800');
    const textColor = useColorModeValue('gray.600', 'gray.400');
    
@@ -196,6 +208,7 @@ const CondemnationTable = ({filterValues, setSearch, setYear, setMonth}) => {
                                 <DTh isNumeric>Total Kms Logged</DTh>
                                 <DTh>MVI Report</DTh>
                                 <DTh>Case Pending</DTh>
+                                <DTh>Actions</DTh>
                             </DTr>
                         </DThead>
                         <DTbody>
@@ -230,6 +243,11 @@ const CondemnationTable = ({filterValues, setSearch, setYear, setMonth}) => {
                                             <Tag size="sm" colorScheme={row.anyCasePending ? 'orange' : 'blue'} variant="subtle">
                                                 {row.anyCasePending ? 'Yes' : 'No'}
                                             </Tag>
+                                        </DTd>
+                                        <DTd> 
+                                            <Button size="sm" variant="ghost" colorScheme="teal" onClick={() => handleViewClick(row.applicationCode)}>
+                                                View Details
+                                            </Button>
                                         </DTd>
                                     </DTr>
                                 ))
@@ -273,6 +291,12 @@ const CondemnationTable = ({filterValues, setSearch, setYear, setMonth}) => {
                 </Flex>
              </>
         )}
+
+        <VehicleDetailsViewModal
+        isOpen={isOpen}
+        onClose={handleCloseModal}
+        applicationCode={selectedApplicationCode}
+      />
     </Box>
   );
 };

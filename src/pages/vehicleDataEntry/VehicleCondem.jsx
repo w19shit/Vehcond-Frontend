@@ -1,10 +1,9 @@
 import React from 'react';
-import { Stack, Radio, HStack, Box, Text } from '@chakra-ui/react'; // Added Box, Text
-
+import { Stack, Radio, HStack, Box, Text } from '@chakra-ui/react'; 
 import InputField from '../../components/core/formik/InputField';
 import TextAreaField from '../../components/core/formik/TextAreaField';
 import RadioGroupField from '../../components/core/formik/RadioGroupField';
-import PartsCondition from './PartsCondition'; // Ensure path is correct
+import PartsCondition from './PartsCondition'; 
 
 const VehicleCondem = ({ values, setFieldValue, handleMviReportChange }) => { // Added setFieldValue for consistency
     // The handleMviReportChange prop is passed from VehicleRegistrationForm

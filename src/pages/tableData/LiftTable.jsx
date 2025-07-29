@@ -33,17 +33,21 @@ import {
 
 import { useFetchAllottedVehicles, useLifitngVehicle } from '../../hooks/transportActions'; 
 import LiftingVehicleModal from '../../components/common/LiftingVehicleModal'; 
+import AllotmentLetterPDFModal from '../../components/common/AllotmentLetterPDFModal';
 
-const LiftTable = (/* { onOpenModal } - We'll manage modal internally */) => {
+const LiftTable = () => {
     
     const [pageSize, setPageSize] = useState(10);
     const [pageNumber, setPageNumber] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [isLiftingModalOpen, setIsLiftingModal] = useState(false);
+  const [vehicleForLifting, setVehicleForLifting] = useState(null);
 
+  const [isLetterModalOpen, setIsLetterModalOpen] = useState(false);
+  const [vehicleForLetter, setVehicleForLetter] = useState(null);
+  
   const toast = useToast();
 
   const {
@@ -63,7 +67,6 @@ const LiftTable = (/* { onOpenModal } - We'll manage modal internally */) => {
   const currentPageNumber = response?.data?.number ?? 0;
   const currentPageSize = response?.data?.size ?? pageSize;
 
-
   const containerBg = useColorModeValue('white', 'gray.800');
   const textColor = useColorModeValue('gray.600', 'gray.400');
 
@@ -73,14 +76,28 @@ const LiftTable = (/* { onOpenModal } - We'll manage modal internally */) => {
 
   // --- Modal Control Functions ---
   const handleOpenLiftModal = (vehicle) => {
-    setSelectedVehicle(vehicle);
-    setIsModalOpen(true);
+    setVehicleForLifting(vehicle);
+    setIsLiftingModal(true);
   };
 
   const handleCloseLiftModal = () => {
-    setSelectedVehicle(null);
-    setIsModalOpen(false);
+    setVehicleForLifting(null);
+    setIsLiftingModal(false);
   };
+
+  const handleOpenLetterModal = (row) => {
+    const letterData = {
+        appNo: row?.applicationCode,
+    }
+
+    setVehicleForLetter(letterData);
+    setIsLetterModalOpen(true);
+  }
+
+  const handleCloseLetterModal = () => {
+    setIsLetterModalOpen(false);
+    setVehicleForLetter(null);
+  }
 
   // --- Form Submission Handler (Passed to Modal) ---
   const handleLiftSubmit = (formData) => {
@@ -199,7 +216,7 @@ const LiftTable = (/* { onOpenModal } - We'll manage modal internally */) => {
                                     <DTr key={row.applicationCode}>
                                         <DTd><Text fontWeight="medium" color="teal.600">{row?.registrationNo || 'N/A'}</Text></DTd>
                                         <DTd>{row.vehicleDescription || 'N/A'}</DTd>
-                                        <DTd>{row.purchaseDate /* Consider formatting date: format(new Date(row.purchaseDate), 'dd-MM-yyyy') */}</DTd>
+                                        <DTd>{row.purchaseDate }</DTd>
                                         <DTd isNumeric>{row.depreciatedValue?.toLocaleString() ?? 'N/A'}</DTd>
                                         <DTd isNumeric>{row.totalKmsLogged?.toLocaleString() ?? 'N/A'}</DTd>
                                         <DTd>{row.allotteesname}</DTd>
@@ -210,10 +227,19 @@ const LiftTable = (/* { onOpenModal } - We'll manage modal internally */) => {
                                                   size="xs"
                                                   colorScheme="teal"
                                                   variant="outline"
-                                                  onClick={() => handleOpenLiftModal(row)} // Open modal with current row data
-                                                  isLoading={isLifting && selectedVehicle?.applicationCode === row.applicationCode} // Optional: show loading on specific button
+                                                  onClick={() => handleOpenLiftModal(row)}
+                                                  isLoading={isLifting && vehicleForLifting?.applicationCode === row.applicationCode}
                                                 >
                                                     Lift
+                                                </Button>
+                                                <Button
+                                                  size="xs"
+                                                  colorScheme="blue"
+                                                  variant="outline"
+                                                  onClick={() => handleOpenLetterModal(row)}
+                                                //   isLoading={isLifting && vehicleForLifting?.applicationCode === row.applicationCode}
+                                                >
+                                                    View Allotment Letter. 
                                                 </Button>
                                             </HStack>
                                         </DTd>
@@ -259,13 +285,21 @@ const LiftTable = (/* { onOpenModal } - We'll manage modal internally */) => {
         )}
 
         {/* Render the Modal */}
-        {selectedVehicle && (
+        {vehicleForLifting && (
             <LiftingVehicleModal
-                isOpen={isModalOpen}
+                isOpen={isLiftingModalOpen}
                 onClose={handleCloseLiftModal}
-                vehicle={selectedVehicle}
+                vehicle={vehicleForLifting}
                 onSubmit={handleLiftSubmit} // Pass the submit handler
                 isLoading={isLifting}      // Pass the mutation's loading state
+            />
+        )}
+
+        {vehicleForLetter && (
+            <AllotmentLetterPDFModal 
+                isOpen={isLetterModalOpen}
+                onClose={handleCloseLetterModal}
+                rowState={vehicleForLetter}
             />
         )}
     </Box>

@@ -1,3 +1,4 @@
+import { useState, useMemo } from "react";
 import { Box, Collapse, Heading, HStack, Link, Stack, Text } from "@chakra-ui/react";
 
 import { Link as RouterLink, NavLink } from "react-router-dom";
@@ -11,16 +12,15 @@ import {
   MdArrowDownward 
 } from "react-icons/md";
 
-import { useState } from "react";
-
 const UsersSidebar = ({ profile, onClose }) => {
 
   // Queries
   const menuQuery = useFetchMenuLinks();
 
-  const sortedMenu = menuQuery?.data?.data?.sort(
-    (a, b) => a.sortOrder - b.sortOrder
-  );
+  const sortedMenu = useMemo(() => {
+    return menuQuery?.data?.data || [];
+  
+  }, [menuQuery?.data?.data]);
 
   const[openSubmenu, setOpenSubMenu] = useState({});
 
@@ -130,7 +130,7 @@ const UsersSidebar = ({ profile, onClose }) => {
             },
           }}
         >
-          {Object.entries(groupedMenu || {}).map(([processName, items]) => {
+          {Object.entries(groupedMenu).map(([processName, items]) => {
             const mainLink = items[0]; 
             return (
               <Box key={processName} pr={2}>

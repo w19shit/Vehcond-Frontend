@@ -18,6 +18,7 @@ import {
   MenuList,
   MenuItem,
   IconButton,
+  useDisclosure
 } from '@chakra-ui/react';
 
 import { 
@@ -45,9 +46,12 @@ import { downloadFileFromResponse } from '../../components/utils/blobHelper';
 
 import { useGenerateVehicleReport } from '../../hooks/reportQueries';
 
+import VehicleDetailsViewModal from '../../components/common/VehicleDetailsViewModal';
+
 import SearchInput from '../../components/core/SearchInput';
 
 const FinalListDisplay = () => {
+
   const [pageSize, setPageSize] = useState(10);
   const [pageNumber, setPageNumber] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
@@ -55,6 +59,9 @@ const FinalListDisplay = () => {
   const [printingCode, setPrintingCode] = useState(null);
 
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
+
+   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedAppCode, setSelectedAppCode] = useState(null);
 
   const { data: response, 
           isLoading, 
@@ -66,6 +73,16 @@ const FinalListDisplay = () => {
   const toast = useToast();
 
   const { mutateAsync: generateReport } = useGenerateVehicleReport();
+
+  const handleViewDetails = (appCode) => {
+    setSelectedAppCode(appCode);
+    onOpen();
+  };
+
+  const handleCloseModal = () => {
+    onClose();
+    setSelectedAppCode(null); // Important cleanup
+  };
 
   const handleGenerateReport = async (applicationCode, disposition) => {
     setPrintingCode(applicationCode);
@@ -246,6 +263,11 @@ const handleSearchChange = (newValue) =>
                         >
                           Download Report
                         </MenuItem>
+                        <MenuItem
+                          onClick={() => handleViewDetails(row.applicationCode)}
+                        >
+                          View Vehicle Details
+                        </MenuItem>
                       </MenuList>
                     </Menu>
                   </DTd>
@@ -297,6 +319,11 @@ const handleSearchChange = (newValue) =>
       </Flex>
       {/* --- End Pagination --- */}
 
+  <VehicleDetailsViewModal
+        isOpen={isOpen}
+        onClose={handleCloseModal}
+        applicationCode={selectedAppCode}
+      />
     </Box>
   );
 };

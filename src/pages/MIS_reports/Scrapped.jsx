@@ -11,6 +11,7 @@ import {
 import ScrappedTable from '../Msi_tableData/ScrappedTable';
 
 import { useFetchScrappedReportPDF, useFetchScrappedReportExcel} from '../../hooks/reportQueries';
+import { useFetchUsersProfile } from '../../hooks/userQueries';
 
 const Scrapped = () => 
 {
@@ -30,9 +31,9 @@ const Scrapped = () =>
        isPending: isExportingExcel,
      } = useFetchScrappedReportExcel();
 
-     // const { data: profileData, isLoading: isLoadingProfile} = useFetchUsersProfile();
+     const { data: profileData, isLoading: isLoadingProfile} = useFetchUsersProfile();
    
-     // const profile = profileData?.data;
+     const profile = profileData?.data;
    
      const handleExport = (format) => {
        if(!year || !month)
@@ -59,7 +60,7 @@ const Scrapped = () =>
           exportExcel(params);
          }
      };
-// const canExport = profile && (profile.role === 'ADMIN' || profile.role === 'TD');
+const canExport = profile && (profile.role === 'ADMIN' || profile.role === 'TD');
 
   return (
     <Box mt={5}>
@@ -68,7 +69,7 @@ const Scrapped = () =>
           setSearch={setSearch}
           setYear={setYear}
           setMonth={setMonth}/>
-        {/* {canExport && ( */}
+        {canExport && (
       <HStack spacing={5} mt={4} justifyContent="center">
                     <Button 
                       size="md" 
@@ -89,7 +90,7 @@ const Scrapped = () =>
                       Export Excel
                     </Button>
                   </HStack>  
-                     {/* )} */}
+                )}
     </Box>
   );
 };

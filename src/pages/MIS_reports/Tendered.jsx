@@ -12,7 +12,7 @@ import TenderedTable from '../Msi_tableData/TenderedTable';
 
 // Import mutation hooks
 import { useFetchTenderedReportPDF, useFetchTenderedReportExcel } from '../../hooks/reportQueries'; 
-
+import { useFetchUsersProfile } from '../../hooks/userQueries';
 
 const Tendered = () => 
 {
@@ -48,9 +48,9 @@ const Tendered = () =>
   };
 
   
-      // const { data: profileData, isLoading: isLoadingProfile} = useFetchUsersProfile();
+      const { data: profileData, isLoading: isLoadingProfile} = useFetchUsersProfile();
     
-      // const profile = profileData?.data;
+      const profile = profileData?.data;
     
       const handleExport = (format) => {
         // Use the values from the state object
@@ -77,6 +77,7 @@ const Tendered = () =>
         }
       };
   
+        const canExport = profile && (profile.role === 'ADMIN' || profile.role === 'TD');
 
   return (
     <Box mt={5}>
@@ -85,7 +86,7 @@ const Tendered = () =>
           setYear={handleSetYear}
           setMonth={handleSetMonth} />
 
-              {/* {canExport && ( */}
+              {canExport && (
       <HStack spacing={5} mt={4} justifyContent="center">
                     <Button 
                       size="md" 
@@ -106,7 +107,7 @@ const Tendered = () =>
                       Export Excel
                     </Button>
                   </HStack>  
-      {/* )} */}
+      )}
     </Box>
   );
 };
