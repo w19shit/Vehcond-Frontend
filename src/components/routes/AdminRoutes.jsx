@@ -3,7 +3,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { Box, Center, Spinner, Stack, useDisclosure } from "@chakra-ui/react";
 import ScrollToTop from "./ScrollToTop";
 import LogoutForm from "../../forms/auth/LogoutForm";
-import { useFetchUsersProfile } from "../../hooks/userQueries";
+import { useFetchUsersProfile } from "../../hooks/userProfileQueries";
 
 import UsersNavbar from "../navigations/users/UsersNavbar";
 
@@ -25,7 +25,7 @@ const AdminRoutes = () => {
   if (profileQuery.isPending) {
     return (
       <Center minH="100dvh">
-        <Spinner thickness="4px" size="xl" color="brand.600" />
+        <Spinner thickness="4px" size="xl" color="#fdfdfdff" />
       </Center>
     );
   }
@@ -52,7 +52,7 @@ const AdminRoutes = () => {
         
       />
     
-      <Stack minH="100dvh" justifyContent="space-between" spacing={8} bg="#C8E8F5">
+      <Stack minH="100dvh" justifyContent="space-between" spacing={8} bg="#fdfdfdff">
         <Stack direction="row" spacing={0}>
           <Box display={{base: "none", lg: "block"}}>
             <UsersSidebar profile={profileQuery?.data?.data} />

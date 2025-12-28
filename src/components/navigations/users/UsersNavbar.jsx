@@ -51,7 +51,7 @@ const UsersNavbar = ({ openLogout, profile }) => {
   const menuQuery = useFetchMenuLinks();
 
   return (
-    <Header maxW={null} bg="background">
+    <Header maxW={null} bg="background" position="fixed">
 
       <HStack direction="row" justifyContent="space-between">
         {/* LHS */}
@@ -72,7 +72,7 @@ const UsersNavbar = ({ openLogout, profile }) => {
           />
 
           <Box >
-            <Text> Vehicle Condemnation</Text>
+            <Text> Vehicle Management System</Text>
           </Box>
 
           
@@ -89,30 +89,26 @@ const UsersNavbar = ({ openLogout, profile }) => {
         {/* RHS */}
         <HStack>
           <Menu>
-            <MenuButton
-              rounded="full"
-              _focusVisible={{
-                ring: 2,
-                ringColor: useColorModeValue("zinc.950", "white"),
-                ringOffset: "2px",
-                ringOffsetColor: "background",
-              }}
-            >
-              <Avatar
-                name={profile?.name}
-                ring="1px"
-                ringColor="border"
-                bg={useColorModeValue("zinc.100", "zinc.900")}
-                color={useColorModeValue("zinc.950", "zinc.50")}
-              >
-                <AvatarBadge
-                  boxSize="1rem"
-                  bg="brand.600"
-                  borderColor={useColorModeValue("brand.200", "brand.800")}
-                />
-              </Avatar>
-            </MenuButton>
+            <HStack spacing={3}>
+              <Box textAlign="right" lineHeight="1.1">
+                <Text fontWeight="bold" fontSize="sm">
+                  {profile?.name}
+                </Text>
+              </Box>
 
+              <Menu>
+                <MenuButton>
+                  <Avatar name={profile?.name} size="md">
+                    <AvatarBadge boxSize="1rem" bg="green.400" />
+                  </Avatar>
+                </MenuButton>
+                <MenuList>
+                  <MenuItem icon={<MdOutlineLogout />} onClick={openLogout}>
+                    Logout
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            </HStack>
             <MenuList>
               <MenuItem
                 icon={<MdOutlineLogout size={16} />}

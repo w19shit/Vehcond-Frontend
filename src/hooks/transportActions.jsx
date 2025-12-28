@@ -625,3 +625,59 @@ export const useFetchVehicleDetails = (applicationcode) => {
         enabled: !!applicationcode,
     })
 }
+
+// POST : Add Vehicle
+const addVehicle = ({ data }) => {
+  return request({
+    url: `/transport-action/add`,
+    method: "post",
+    data: data,
+  });
+};
+
+export const useAddVehicle = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: addVehicle,
+
+    onSuccess: (responseData, variables) => {
+      console.log("Vehicle added successfully: ", responseData);
+
+      // ✅ Refresh heavy vehicle list after add
+      queryClient.invalidateQueries({ queryKey: ["fetch-heavy-vehicles"] });
+    },
+
+    onError: (error, variables) => {
+      console.error("Vehicle add failed: ", error);
+    },
+  });
+};
+
+// PUT : Update Vehicle
+const updateVehicle = ({ data }) => {
+  return request({
+    url: `/transport-action/update`,
+    method: "put",
+    data: data,
+  });
+};
+
+export const useUpdateVehicle = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateVehicle,
+
+    onSuccess: (responseData, variables) => {
+      console.log("Vehicle updated successfully: ", responseData);
+
+      // ✅ Refresh heavy vehicle list after update
+      queryClient.invalidateQueries({ queryKey: ["fetch-heavy-vehicles"] });
+    },
+
+    onError: (error, variables) => {
+      console.error("Vehicle update failed: ", error);
+    },
+  });
+};

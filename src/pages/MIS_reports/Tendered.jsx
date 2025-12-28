@@ -12,7 +12,8 @@ import TenderedTable from '../Msi_tableData/TenderedTable';
 
 // Import mutation hooks
 import { useFetchTenderedReportPDF, useFetchTenderedReportExcel } from '../../hooks/reportQueries'; 
-import { useFetchUsersProfile } from '../../hooks/userQueries';
+import { useFetchUsersProfile } from "../../hooks/userProfileQueries";
+
 
 const Tendered = () => 
 {

@@ -11,7 +11,8 @@ import {
 import ScrappedTable from '../Msi_tableData/ScrappedTable';
 
 import { useFetchScrappedReportPDF, useFetchScrappedReportExcel} from '../../hooks/reportQueries';
-import { useFetchUsersProfile } from '../../hooks/userQueries';
+import { useFetchUsersProfile } from "../../hooks/userProfileQueries";
+
 
 const Scrapped = () => 
 {

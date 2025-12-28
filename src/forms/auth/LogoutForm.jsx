@@ -13,24 +13,27 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useLogoutUser } from "../../hooks/authQueries";
+import { client } from "../../components/utils/request"; // ✔ correct import
 
 const LogoutForm = ({ isOpen, onClose }) => {
-  // Hooks
   const toast = useToast();
-
-  // Routers
   const navigate = useNavigate();
 
-  // Queries
   const logoutQuery = useLogoutUser(
-    (response) => {
+    () => {
       onClose();
+
+      // Remove everything
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
       localStorage.removeItem("role");
       localStorage.removeItem("saved_form");
+
+      delete client.defaults.headers.common["Authorization"]; // ✔ important
+
       navigate("/");
-      return response;
+
+      return true;
     },
     (error) => {
       toast({
@@ -40,8 +43,8 @@ const LogoutForm = ({ isOpen, onClose }) => {
         status: "error",
         title: "Error",
         description:
-          error.response.data.detail ||
-          "Oops! something went wrong. Couldn't logout user.",
+          error.response?.data?.detail ||
+          "Something went wrong. Couldn't logout user.",
       });
       return error;
     }
@@ -52,18 +55,10 @@ const LogoutForm = ({ isOpen, onClose }) => {
       <ModalOverlay>
         <ModalContent>
           <ModalCloseButton />
-          <ModalHeader fontSize="lg" fontWeight="bold">
-            Log out
-          </ModalHeader>
-
-          <ModalBody>
-            Are you sure you want to logout from the session?
-          </ModalBody>
-
+          <ModalHeader fontSize="lg" fontWeight="bold">Log out</ModalHeader>
+          <ModalBody>Are you sure you want to logout?</ModalBody>
           <ModalFooter as={HStack}>
-            <Button variant="outline" onClick={onClose} w="full">
-              Cancel
-            </Button>
+            <Button variant="outline" onClick={onClose} w="full">Cancel</Button>
             <Button
               colorScheme="red"
               onClick={() => logoutQuery.mutate()}

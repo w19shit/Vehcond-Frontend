@@ -67,3 +67,14 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 } */
+/* Sleek custom scrollbar for modals */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}

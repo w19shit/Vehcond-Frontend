@@ -63,12 +63,13 @@ export const useRegisterUser = (onSuccess, onError) => {
 const logoutUser = () => {
   return request({
     url: "/auth/logout",
-    method: "get",
+    method: "post",   // ✔ MUST be POST
     headers: {
-      "API-Key": API_KEY,
+      Authorization: `Bearer ${localStorage.getItem("access_token")}`,
     },
   });
 };
+
 
 export const useLogoutUser = (onSuccess, onError) => {
   return useMutation({

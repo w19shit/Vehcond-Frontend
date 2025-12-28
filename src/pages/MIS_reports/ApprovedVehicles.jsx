@@ -10,7 +10,7 @@ import {
 import ApprovedTable from '../Msi_tableData/ApprovedTable';
 
 import { useFetchApprovedVehicleReportPDF, useFetchApprovedVehicleReportExcel } from '../../hooks/reportQueries';
-import { useFetchUsersProfile } from '../../hooks/userQueries';
+import { useFetchUsersProfile } from "../../hooks/userProfileQueries";
 
 const ApprovedVehicles = () => {
 

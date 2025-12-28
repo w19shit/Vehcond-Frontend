@@ -160,20 +160,20 @@ const RoleTable = ({ onOpenModal }) => {
                             )}
                             {/* Show table rows (only when not fetching to avoid flashing) */}
                             {!isFetching && fetchedData.length > 0 ? (
-                                fetchedData.map((row) => (
-                                    <DTr key={row.rolecode}>
-                                        <DTd><Text fontWeight="medium" color="teal.600">{row?.rolecode || 'N/A'}</Text></DTd>
-                                        <DTd>{row.description || 'N/A'}</DTd>
+                                fetchedData.map((row, index) => (
+                                        <DTr key={row.rolecode}>
+                                        <DTd><Text fontWeight="medium" color="teal.600">{startIndex + index + 1}</Text></DTd>
+                                        <DTd>{row.role || 'N/A'}</DTd>
                                         <DTd>
-                                            <HStack spacing={2}>
-                                                {/* Call parent's function on click */}
-                                                <Button size="xs" colorScheme="teal" variant="outline" onClick={() => onOpenModal(row, 'pages')}>
-                                                    Pages
+                                             <HStack spacing={2}>
+                <                               Button size="xs" colorScheme="teal" variant="outline" onClick={() => onOpenModal(row, 'pages')}>
+                                                     Pages
                                                 </Button>
                                             </HStack>
                                         </DTd>
                                     </DTr>
                                 ))
+
                             ) : null}
                             {/* Show no data message */}
                             {!isFetching && fetchedData.length === 0 && (

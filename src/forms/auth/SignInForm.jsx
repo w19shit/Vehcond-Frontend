@@ -58,6 +58,12 @@ const SignInForm = () => {
         case "ADMIN":
           navigate("/admin/dashboard");
           break;
+        case "SAD1":
+          navigate("/sad1/dashboard");
+          break;
+        case "SAD2":
+          navigate("/sad2/dashboard");
+          break;
         default:
           break;
       }

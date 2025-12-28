@@ -3,7 +3,8 @@ import { Navigate, Outlet } from "react-router-dom";
 import { Box, Center, Spinner, Stack, useDisclosure } from "@chakra-ui/react";
 import ScrollToTop from "./ScrollToTop";
 import LogoutForm from "../../forms/auth/LogoutForm";
-import { useFetchUsersProfile } from "../../hooks/userQueries";
+import { useFetchUsersProfile } from "../../hooks/userProfileQueries";
+
 
 import UsersNavbar from "../navigations/users/UsersNavbar";
 
@@ -52,7 +53,7 @@ const DARoutes = () => {
         
       />
     
-      <Stack minH="100dvh" justifyContent="space-between" spacing={8} bg="#2483C5">
+      <Stack minH="100dvh" justifyContent="space-between" spacing={8} bg="#fdfdfdff">
         <Stack direction="row" spacing={0}>
           <Box display={{base: "none", lg: "block"}}>
             <UsersSidebar profile={profileQuery?.data?.data} />

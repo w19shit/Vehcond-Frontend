@@ -23,7 +23,7 @@ const UsersSidebarDrawer = ({ isOpen, onOpen, onClose, navHeight, profile }) => 
   return (
   
   <Box 
-    bg="blue.500"
+    bg="gray.200"
     position="fixed"
     top={20}
     left={0}
@@ -50,6 +50,7 @@ const UsersSidebarDrawer = ({ isOpen, onOpen, onClose, navHeight, profile }) => 
       isOpen={isOpen}
       placement="left"
       onClose={onClose}
+      
     >
       <DrawerOverlay
         bg="blackAlpha.700"
@@ -60,7 +61,7 @@ const UsersSidebarDrawer = ({ isOpen, onOpen, onClose, navHeight, profile }) => 
       <DrawerContent bg={useColorModeValue("white", "zinc.950")}>
         <DrawerCloseButton />   
 
-        <DrawerBody as="nav" p={0} overflowY="auto">
+        <DrawerBody as="nav" p={0} overflowY="auto" >
           <UsersSidebar1 profile={profile} onClose={onClose} />
         </DrawerBody>
       </DrawerContent>

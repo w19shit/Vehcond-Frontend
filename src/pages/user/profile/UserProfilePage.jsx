@@ -17,7 +17,7 @@ import {
   useColorModeValue,
   VStack,
 } from "@chakra-ui/react";
-import { useFetchUsersProfile } from "../../../hooks/userQueries";
+import { useFetchUsersProfile } from "../../../hooks/userProfileQueries";
 import ChangePasswordForm from "../../../forms/profile/ChangePasswordForm";
 import UpdateProfileForm from "../../../forms/profile/UpdateProfileForm";
 

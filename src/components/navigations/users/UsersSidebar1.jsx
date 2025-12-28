@@ -1,95 +1,131 @@
 import { useState, useMemo } from "react";
-import { Box, Collapse, Heading, HStack, Link, Stack, Text } from "@chakra-ui/react";
-
+import {
+  Box,
+  Collapse,
+  Heading,
+  HStack,
+  Link,
+  Stack,
+  Text,
+  Spinner,
+} from "@chakra-ui/react";
 import { Link as RouterLink, NavLink } from "react-router-dom";
-
 import { useFetchMenuLinks } from "../../../hooks/uiQueries";
-
 import MdIcon from "../../core/MdIcon";
+import { MdArrowForward, MdArrowDownward } from "react-icons/md";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
-import { 
-  MdArrowForward, 
-  MdArrowDownward 
-} from "react-icons/md";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+// 🔹 Fetch count dynamically based on role
+const fetchPendingCount = async (role) => {
+  const token = localStorage.getItem("access_token");
+  if (!role || !token) return 0;
+
+  let statuses = [];
+
+  if (role === "TD") {
+    // ✅ Transport Department
+    statuses = ["Pending with Transport"];
+  } else if (role === "SAD2") {
+    // ✅ SAD2 Role (from Pending with SAD2 → Work Order Uploaded)
+    statuses = [
+      "Pending with SAD2",
+      "Pending with Transport",
+      "Repair Estimated",
+      "Approval Order Uploaded",
+      "Work Order Uploaded",
+    ];
+  } else {
+    // Other roles don’t show pending repair request count
+    return 0;
+  }
+
+  const results = await Promise.all(
+    statuses.map((s) =>
+      axios
+        .get(`${BACKEND_URL}/repairrequest/status/${encodeURIComponent(s)}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res) => res.data || [])
+        .catch(() => [])
+    )
+  );
+
+  // ✅ Total requests from relevant statuses
+  const allRequests = results.flat();
+  // ❌ Exclude “Approved for Repair” or “Sanction Order Uploaded”
+  const filtered = allRequests.filter(
+    (r) =>
+      !r.status?.toLowerCase().includes("approved for repair") &&
+      !r.status?.toLowerCase().includes("sanction order uploaded")
+  );
+
+  return filtered.length;
+};
 
 const UsersSidebar = ({ profile, onClose }) => {
-
-  // Queries
   const menuQuery = useFetchMenuLinks();
+  const sortedMenu = useMemo(() => menuQuery?.data?.data || [], [menuQuery?.data?.data]);
+  const [openSubmenu, setOpenSubMenu] = useState({});
 
-  const sortedMenu = useMemo(() => {
-    return menuQuery?.data?.data || [];
-  
-  }, [menuQuery?.data?.data]);
+  // ✅ Role-based query key and fetch logic
+  const { data: pendingCount = 0, isLoading } = useQuery({
+    queryKey: ["pendingRepairRequestsCount", profile?.role],
+    queryFn: () => fetchPendingCount(profile?.role),
+    refetchInterval: 10000, // refresh every 10 sec
+    enabled: !!profile?.role, // run only when role is known
+  });
 
-  const[openSubmenu, setOpenSubMenu] = useState({});
-
-  const toggleSubMenu = (urlCode) =>
-  {
+  const toggleSubMenu = (urlCode) => {
     setOpenSubMenu((prev) => ({
       ...prev,
-      [urlCode] : !prev[urlCode],
+      [urlCode]: !prev[urlCode],
     }));
   };
 
-  const handleLinkClick = (event, link) => 
-  {
-    if(link.subProcessName)
-    {
+  const handleLinkClick = (event, link) => {
+    if (link.subProcessName) {
       event.preventDefault();
       toggleSubMenu(link.urlCode);
-    }else{
-      if(onClose){
+    } else if (onClose) {
       onClose();
-    }
     }
   };
 
-  const handleLeafLinkClick = () => {
-    if(onClose)
-    {
-      onClose();
+  const groupedMenu = sortedMenu?.reduce((acc, item) => {
+    if (item.showInMenu) {
+      if (!acc[item.processName]) acc[item.processName] = [];
+      acc[item.processName].push(item);
     }
-  }
-
-  const groupMenuItems = (menuItems) => {
-    return menuItems?.reduce((groups, item) => {
-      if (item.showInMenu) {
-        if (!groups[item.processName]) {
-          groups[item.processName] = [];
-        }
-        groups[item.processName].push(item);
-      }
-      return groups;
-    }, {});
-  };
-
-  const groupedMenu = groupMenuItems(sortedMenu);
+    return acc;
+  }, {});
 
   return (
     <Stack
-      
       w={258}
-      borderColor="border"
-      bg="#ffffff"
-      //minH="100dvh"
+      bg="gray.700"
+      color="gray.100"
       h="100dvh"
       pos="fixed"
       top={0}
       left={0}
       py={7}
-      
       zIndex="dock"
-      boxShadow="-5px 0px 5px rgba(0,0,0,0.1)"
-      // boxShadow={{base: "md", lg: "-5px 0 5px rgba(0,0,0,0.1)"}}
+      boxShadow="2xl"
       overflowY="auto"
+      borderRadius="md"
+      sx={{
+        "&::-webkit-scrollbar": { width: "6px" },
+        "&::-webkit-scrollbar-thumb": { background: "gray.500", borderRadius: "3px" },
+      }}
     >
       <Stack spacing={8}>
-
-        <Box px={4} textAlign="left">
+        {/* ===== App Header ===== */}
+        <Box px={4} textAlign="center">
           <Link
             as={RouterLink}
-            variant="logo"
             to={
               profile?.role === "USER"
                 ? "/user/dashboard"
@@ -97,125 +133,111 @@ const UsersSidebar = ({ profile, onClose }) => {
                 ? "/da/dashboard"
                 : profile?.role === "TD"
                 ? "/td/dashboard"
+                : profile?.role === "SAD1"
+                ? "/sad1/dashboard"
+                : profile?.role === "SAD2"
+                ? "/sad2/dashboard"
                 : profile?.role === "ADMIN"
                 ? "/admin/dashboard"
-                : ""
+                : "/"
             }
-            onClick={handleLeafLinkClick}
+            _hover={{ textDecoration: "none" }}
+            onClick={onClose}
           >
+            <Heading size="md" color="white">
+            </Heading>
           </Link>
         </Box>
 
-        {/* Menu */}
-        <Stack 
-          spacing={1} 
-          mt={10} 
-          pl={6}
-          flex="1"
-          overflowY="auto"
-          pb={4}
-          sx={{
-            '&::-webkit-scrollbar': {
-              width: '6px',
-            },
-            '&::-webkit-scrollbar-track': {
-              background: 'transparent',
-            },
-            '&::-webkit-scrollbar-thumb': {
-              background: 'gray.300',
-              borderRadius: '3px',
-            },
-            '&::-webkit-scrollbar-thumb:hover': {
-              background: 'gray.400',
-            },
-          }}
-        >
+        {/* ===== Menu ===== */}
+        <Stack spacing={1} mt={10} pl={6} flex="1" overflowY="auto" pb={4}>
           {Object.entries(groupedMenu).map(([processName, items]) => {
-            const mainLink = items[0]; 
+            const mainLink = items[0];
             return (
               <Box key={processName} pr={2}>
                 <Link
                   as={NavLink}
-                  // variant="sidebar"
                   to={mainLink.pageurl}
                   onClick={(e) => handleLinkClick(e, mainLink)}
                   display="flex"
-                  alignItems = "center"
+                  alignItems="center"
                   px={4}
                   py={2}
-                  _hover={{ textDecor: "none", bg: "gray.100", color: "blue.500" }}
-                  _active={{ bg: "blue.50", color: "blue.700" }}
-                  _focus={{ outline: "none" }}
-                  _visited={{ color: "gray.600" }}
                   borderRadius="md"
-                  fontWeight="medium"
-                  aria-current={({ isActive }) => (isActive ? "page" : undefined)}
-                  // isActive={(match, location) => {
-
-                  //   if (!match) return false;
-                  //   // If it has subitems and a submenu is open, don't mark parent active unless it's the current page
-                  //   if (items.some(item => item.subProcessName) && openSubmenu[mainLink.urlCode]) {
-                  //       return location.pathname === mainLink.pageurl;
-                  //   }
-                  //   return true;
-                  // }}
+                  _hover={{ bg: "gray.600" }}
                 >
-                  <HStack flex="1">
-                    <MdIcon iconName={mainLink.processIcon} color="gray.600" _hover={{ color: "blue.500" }} />
-                    <Text color="gray.600" _hover={{ color: "blue.500" }}>
-                      {processName}
-                    </Text>
-                    {items.some((item) => item.subProcessName) && (
-                      <Box ml="auto">
-                        {openSubmenu[mainLink.urlCode] ? <MdArrowDownward size="20px" /> : <MdArrowForward size="20px" />}
+                  <HStack flex="1" spacing={2}>
+                    <MdIcon iconName={mainLink.processIcon} color="gray.300" />
+                    <HStack spacing={2}>
+                      <Text color="gray.200">{processName}</Text>
+
+                      {/* ✅ Pending Repair Requests Badge */}
+                      {processName === "Pending Repair Requests" &&
+                        (isLoading ? (
+                          <Spinner size="xs" color="gray.300" />
+                        ) : pendingCount > 0 ? (
+                          <Box
+                            bg="red.400"
+                            minW="18px"
+                            h="18px"
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            borderRadius="full"
+                            fontSize="xs"
+                            fontWeight="bold"
+                            color="white"
+                            position="relative"
+                            top="-1px"
+                            ml={1}
+                          >
+                            {pendingCount}
+                          </Box>
+                        ) : null)}
+                    </HStack>
+
+                    {items.some((i) => i.subProcessName) && (
+                      <Box ml="auto" color="gray.400">
+                        {openSubmenu[mainLink.urlCode] ? (
+                          <MdArrowDownward size="18px" />
+                        ) : (
+                          <MdArrowForward size="18px" />
+                        )}
                       </Box>
                     )}
                   </HStack>
                 </Link>
 
-                {items.some((item) => item.subProcessName) && (
+                {/* ===== Submenu ===== */}
+                {items.some((i) => i.subProcessName) && (
                   <Collapse in={openSubmenu[mainLink.urlCode]} animateOpacity>
                     <Stack spacing={1} pl={6} mt={1} py={1}>
-                      {items.map((item) => {
-                        if (item.subProcessName) {
-                          return (
+                      {items.map(
+                        (item) =>
+                          item.subProcessName && (
                             <Link
                               key={item.subProcessName}
                               as={NavLink}
-                              // variant="sidebar"
                               to={item.pageurl}
-
-                              onClick = {handleLeafLinkClick}
-                              
-                              _hover={{ textDecor: "none", color: "blue.500" }}
-                              _active={{ textDecor: "none", color: "blue.500" }}
-                              _focus={{ outline: "none" }}
-                              _visited={{ color: "gray.600" }}
+                              onClick={onClose}
                               display="flex"
                               alignItems="center"
-
                               px={4}
                               py={1.5}
-                              borderRadius="md"
                               fontSize="sm"
-
-                              aria-current={({ isActive }) => (isActive ? "page" : undefined)}
-                              // isActive={(match, location) => {
-                              //   if (!match) return false;
-                              //   return location.pathname === item.pageurl;
-                              // }}
                             >
                               <HStack spacing={3}>
-                                <MdIcon iconName={item.subProcessIcon} color="gray.600" _hover={{ color: "blue.500" }}/>
-                                <Text color="gray.600" _hover={{ color: "blue.500" }}>
+                                <MdIcon
+                                  iconName={item.subProcessIcon}
+                                  color="gray.400"
+                                />
+                                <Text color="gray.300">
                                   {item.subProcessName}
                                 </Text>
                               </HStack>
                             </Link>
-                          );
-                        }
-                        return null;
-                      })}
+                          )
+                      )}
                     </Stack>
                   </Collapse>
                 )}

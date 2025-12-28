@@ -63,7 +63,7 @@ const GuestNavbar = () => {
           {/* Vertical line */}
           <Box width="1px" h="55px" bg="black" ml={2} />
           <Box ml={2}>
-            <Text fontSize="13px"> Vehicle Condemnation System 2.0 </Text>
+            <Text fontSize="13px"> Vehicle Management System 1.0 </Text>
             <Text fontSize="13px"> Transport Department </Text>
             <Text fontSize="13px"> Government of Meghalaya </Text>
           </Box>

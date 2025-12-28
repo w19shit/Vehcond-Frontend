@@ -13,7 +13,8 @@ import LiftedTable from '../Msi_tableData/LiftedTable';
 
 // Import mutation hooks
 import { useFetchLiftedReportPDF, useFetchLiftedReportExcel } from '../../hooks/reportQueries'; 
-import { useFetchUsersProfile } from '../../hooks/userQueries';
+import { useFetchUsersProfile } from "../../hooks/userProfileQueries";
+
 
 const Lifted = () => 
 {

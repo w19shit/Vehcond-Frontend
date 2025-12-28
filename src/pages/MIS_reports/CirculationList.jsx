@@ -12,7 +12,8 @@ import {
 import CirculationListTable from '../Msi_tableData/CirculationListTable';
 
 import { useFetchCirculationReportPDF, useFetchCirculationReportExcel } from '../../hooks/reportQueries';
-import { useFetchUsersProfile } from '../../hooks/userQueries';
+import { useFetchUsersProfile } from "../../hooks/userProfileQueries";
+
 
 const CirculationList = () => {
   const [filterValues, setFilterValues] = useState({

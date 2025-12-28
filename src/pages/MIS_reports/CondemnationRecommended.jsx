@@ -11,7 +11,8 @@ import {
 import CondemnationTable from '../Msi_tableData/CondemnationTable';
 
 import { useFetchCondemnedVehicleReportPDF, useFetchCondemnedVehicleReportExcel } from '../../hooks/reportQueries';
-import { useFetchUsersProfile } from '../../hooks/userQueries';
+import { useFetchUsersProfile } from "../../hooks/userProfileQueries";
+
 
 const CondemnationRecommended = () => {
     const [filterValues, setFilterValues] = useState({

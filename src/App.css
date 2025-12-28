@@ -40,3 +40,29 @@
 .read-the-docs {
   color: #888;
 } */
+
+
+
+/* 🔹 Custom placeholder for empty date input */
+input[type="date"] {
+  position: relative;
+  color: transparent;      /* Hide the default text (dd----yyyy) */
+}
+
+input[type="date"]::before {
+  content: attr(placeholder);
+  position: absolute;
+  left: 10px;
+  color: #999;
+  pointer-events: none;
+}
+
+input[type="date"]:focus,
+input[type="date"]:valid {
+  color: black;            /* Show typed/selected value */
+}
+
+input[type="date"]:focus::before,
+input[type="date"]:valid::before {
+  content: "";
+}

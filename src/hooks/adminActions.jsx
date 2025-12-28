@@ -770,32 +770,26 @@ export const useAddProcesses = () => {
 };
 
 
-// POST : ADD ROLE
-const addRoleNameRequest = (payload) => 
-{
-    return request ({
-        url: `/role/add-role`,
+// POST : Add Role
+const addRoleNameRequest = (payload) => {
+    return request({
+        url: "/role/add-role",
         method: "post",
         data: payload,
-    })
-}
+    });
+};
 
 export const useAddRoleNameRequest = () => {
-
     const queryClient = useQueryClient();
 
-    return useMutation ({
+    return useMutation({
         mutationFn: addRoleNameRequest,
-        onSuccess: (response, variables, context) => {
-            console.log('Role inserted successful. Server Response: ', response);
-
-            queryClient.invalidateQueries({
-                queryKey: ['fetch-all-roles'] });
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["fetch-all-roles"] });
         },
-
-        onError: (error, variables, context) => {
-            console.error('Role insertion failed: ', error);
-        },      
+        onError: (error) => {
+            console.error("Role insertion failed: ", error);
+        },
     });
 };
 
